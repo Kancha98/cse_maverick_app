@@ -245,8 +245,8 @@ try:
             # Sort by Date
             tier_1_picks = tier_1_picks.sort_values(by='date', ascending=False)  
             
-            st.dataframe(tier_1_picks, use_container_width=True)
             st.markdown("These are the counters identified by Maverick as having the highest potential for Gains.")
+            st.dataframe(tier_1_picks, use_container_width=True)
             
         else:
             st.info("No stocks meet Tier 1 conditions.")
