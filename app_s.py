@@ -379,8 +379,10 @@ try:
             calculate_performance(tier_2_picks)
 
     # === Filters Section ===
-    st.markdown("### 🔍 Apply Filters")
-
+    st.markdown("### 🔍 DIY & Take Control of Your Analysis")
+    st.markdown("Use the filters below to activate meet your selection criteria.")
+    st.markdown("You can filter stocks based on RSI, Divergence, Volume Analysis, and more.")
+    st.markdown("")
     # Dropdown filters
     selected_symbol = st.selectbox("Select Symbol", options=["All"] + list(df['symbol'].unique()))
     selected_divergence = st.selectbox("Select Divergence Check", options=["All"] + list(df['rsi_divergence'].dropna().unique()))
