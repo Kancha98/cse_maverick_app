@@ -353,6 +353,12 @@ try:
                                  'ema_20', 'ema_50','ema_100', 'ema_200','Date'
                                                             ]
             
+            # Format the Date column to remove the time component
+            if 'date' in tier_2_picks.columns:
+                tier_2_picks['date'] = pd.to_datetime(tier_2_picks['date']).dt.date
+            
+            # Reset the index to remove the index column
+            tier_2_picks = tier_2_picks.reset_index(drop=True)
             
             # Format numeric values with commas
             for col in ['turnover', 'volume']:
