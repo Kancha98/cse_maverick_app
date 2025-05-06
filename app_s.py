@@ -122,8 +122,10 @@ def calculate_performance(tier_2_picks):
 
             if cse_data is not None and not cse_data.empty:
                 # Get the initial close price (from the earliest date in the filtered data)
-                initial_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min()
-                initial_close = tier_2_picks[(tier_2_picks['symbol'] == symbol) & (tier_2_picks['date'] == initial_date)]['closing_price'].iloc[0]
+                oldest_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min()
+                initial_close = tier_2_picks[
+                    (tier_2_picks['symbol'] == symbol) & (tier_2_picks['date'] == oldest_date)
+                ]['closing_price'].iloc[0]
 
                 # Get the latest close price from TradingView data
                 latest_close = cse_data['close'].iloc[-1]
@@ -137,7 +139,7 @@ def calculate_performance(tier_2_picks):
 
                 # Append the result to the performance data
                 performance_data.append({
-                    'Date Detected': tier_2_picks['date'],
+                    'Date Detected': oldest_date,
                     'symbol': symbol,
                     'Initial Close': initial_close,
                     'Latest Close': latest_close,
