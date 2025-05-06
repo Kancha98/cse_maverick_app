@@ -111,19 +111,19 @@ from streamlit.components.v1 import html
 # Initialize TradingView datafeed
 tv = TvDatafeed()
 
-def calculate_performance(filtered_df):
+def calculate_performance(tier_2_picks):
     """Calculate Maverick's Picks performance based on capital gain."""
     performance_data = []
 
-    for symbol in filtered_df['Symbol'].unique():
+    for symbol in tier_2_picks['symbol'].unique():
         try:
             # Fetch historical data for the stock symbol
             cse_data = tv.get_hist(symbol=symbol, exchange='CSELK', interval=Interval.in_daily, n_bars=200)
 
             if cse_data is not None and not cse_data.empty:
                 # Get the initial close price (from the earliest date in the filtered data)
-                initial_date = filtered_df[filtered_df['Symbol'] == symbol]['Date'].min()
-                initial_close = filtered_df[(filtered_df['Symbol'] == symbol) & (filtered_df['Date'] == initial_date)]['Closing Price'].iloc[0]
+                initial_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['Date'].min()
+                initial_close = tier_2_picks[(tier_2_picks['symbol'] == symbol) & (tier_2_picks['Date'] == initial_date)]['Closing Price'].iloc[0]
 
                 # Get the latest close price from TradingView data
                 latest_close = cse_data['close'].iloc[-1]
@@ -133,7 +133,7 @@ def calculate_performance(filtered_df):
 
                 # Append the result to the performance data
                 performance_data.append({
-                    'Symbol': symbol,
+                    'symbol': symbol,
                     'Initial Close': initial_close,
                     'Latest Close': latest_close,
                     'Capital Gain (%)': capital_gain
