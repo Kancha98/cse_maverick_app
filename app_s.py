@@ -482,30 +482,30 @@ try:
 
     
     # Rename headers
-    filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
+    #filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
 
-    numeric_columns = [
-    'Closing Price', 'Prev Close', 'Turnover'
-    ]
+    #numeric_columns = [
+    #'Closing Price', 'Prev Close', 'Turnover'
+    #]
     
     for col in numeric_columns:
         if col in filtered_df.columns:
             filtered_df[col] = pd.to_numeric(filtered_df[col], errors='coerce')
     
      # Sort the table by Turnover in descending order
-    if 'Turnover' in filtered_df.columns:
-        filtered_df = filtered_df.sort_values(by='Turnover', ascending=False)
+    if 'turnover' in filtered_df.columns:
+        filtered_df = filtered_df.sort_values(by='turnover', ascending=False)
         
     # Format numeric values with commas
-    for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
-        filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
+    #for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
+    #    filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
 
-    filtered_df1 = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 
+    filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 
                                                             'Ema 100', 'Ema 200', 'Last Updated','Date', 'Symbol', 
                                                             'Closing Price', 'Prev Close', 'Change Pct', 'Turnover', 
                                                             'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 'Relative Strength'] if col in filtered_df.columns])    
     # Display the filtered table
-    st.dataframe(filtered_df1, use_container_width=True)
+    st.dataframe(filtered_df, use_container_width=True)
     
     
  # === Legend Section ===
