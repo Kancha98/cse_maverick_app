@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from tvDatafeed import TvDatafeed, Interval
 import psycopg2
 import os
 import urllib.parse as urlparse
@@ -211,7 +212,8 @@ try:
     ema_200_check = st.checkbox("Price Above EMA 200")
     
     
-
+    st.markdown("## Filtered Results")
+    
     # Apply filters
     filtered_df = df.copy()
     if selected_symbol != "All":
