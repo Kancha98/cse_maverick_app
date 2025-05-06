@@ -503,7 +503,11 @@ try:
     filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 
                                                             'Ema 100', 'Ema 200', 'Last Updated','Date', 'Symbol', 
                                                             'Closing Price', 'Prev Close', 'Change Pct', 'Turnover', 
-                                                            'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 'Relative Strength'] if col in filtered_df.columns])    
+                                                            'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 
+                                                            'Relative Strength','vol_avg_5d','vol_avg_20d',
+                                                            'ema_20', 'ema_50', 
+                                                            'ema_100', 'ema_200'
+                                                            ] if col in filtered_df.columns])    
     
     filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
     
