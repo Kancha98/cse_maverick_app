@@ -139,7 +139,7 @@ def calculate_performance(tier_2_picks):
 
                 # Append the result to the performance data
                 performance_data.append({
-                    'Date Detected': oldest_date,
+                    'Date Detected': oldest_date.date(),
                     'symbol': symbol,
                     'Detected Day Close': initial_close,
                     'Latest Close': latest_close,
