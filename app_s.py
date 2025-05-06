@@ -128,6 +128,10 @@ def calculate_performance(tier_2_picks):
                 # Get the latest close price from TradingView data
                 latest_close = cse_data['close'].iloc[-1]
 
+                # Convert to float if necessary
+                initial_close = float(initial_close)
+                latest_close = float(latest_close)
+
                 # Calculate capital gain
                 capital_gain = ((latest_close - initial_close) / initial_close) * 100
 
