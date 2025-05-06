@@ -458,6 +458,18 @@ try:
         else:
             st.info("No stocks meet Tier 2 conditions.")
             
+        if not tier_2_picks.empty:
+         # Find the most recurring stocks and their counts
+            recurring_stocks = tier_2_picks['symbol'].value_counts()
+            recurring_stocks = recurring_stocks[recurring_stocks >= 2]  # Filter stocks with count >= 2
+
+            if not recurring_stocks.empty:
+                st.markdown("### 🔁 Most Recurring Stocks in Tier 2 Picks")
+                for stock, count in recurring_stocks.items():
+                    st.markdown(f"- **{stock}**: {count} times")
+            else:
+                st.info("No recurring stocks found with a count of 2 or more.")
+            
         
         if not tier_2_picks.empty:
             # Call the performance calculation function
