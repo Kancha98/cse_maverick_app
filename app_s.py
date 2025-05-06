@@ -25,7 +25,8 @@ def init_connection():
         user=url.username,
         password=url.password,
         host=url.hostname,
-        port=url.port or "5432"
+        port=url.port or "5432",
+        sslmode="require",
     )
 
 # --- Load Data ---
