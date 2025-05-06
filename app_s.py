@@ -376,10 +376,6 @@ try:
             
             tier_2_picks_show = tier_2_picks.copy()
             
-            # Format the Date column to remove the time component
-            if 'date' in tier_2_picks_show.columns:
-                tier_2_picks_show['date'] = pd.to_datetime(tier_2_picks_show['date']).dt.date
-            
             tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
             
             tier_2_picks_show.columns = [col.replace('_', ' ').title() for col in tier_2_picks_show.columns]
@@ -387,7 +383,6 @@ try:
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
             st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
             
-            st.dataframe(tier_2_picks, use_container_width=True)
             st.dataframe(tier_2_picks_show, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
