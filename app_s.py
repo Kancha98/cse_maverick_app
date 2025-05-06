@@ -376,13 +376,13 @@ try:
             
             tier_2_picks_show = tier_2_picks.copy()
             
-            # Format the Date column to remove the time component
-            if 'Date' in tier_2_picks_show.columns:
-                tier_2_picks_show['Date'] = pd.to_datetime(tier_2_picks_show['Date']).dt.date
-            
             tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
             
             tier_2_picks_show.columns = [col.replace('_', ' ').title() for col in tier_2_picks_show.columns]
+            
+            # Format the Date column to remove the time component
+            if 'Date' in tier_2_picks_show.columns:
+                tier_2_picks_show['Date'] = pd.to_datetime(tier_2_picks_show['Date']).dt.date
             
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
             st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
