@@ -456,8 +456,8 @@ try:
     # Handle empty DataFrame
     if filtered_df.empty:
         st.info("No results match the selected filters.")
-    else:
-        st.dataframe(filtered_df, use_container_width=True)
+    #else:
+        #st.dataframe(filtered_df, use_container_width=True)
     
     
     # Apply turnover range filters
@@ -497,8 +497,8 @@ try:
         filtered_df = filtered_df.sort_values(by='turnover', ascending=False)
         
     # Format numeric values with commas
-    #for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
-    #    filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
+    for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
+        filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
 
     filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 
                                                             'Ema 100', 'Ema 200', 'Last Updated','Date', 'Symbol', 
