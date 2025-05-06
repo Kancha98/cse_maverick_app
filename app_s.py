@@ -506,7 +506,6 @@ try:
                                                             'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 'Relative Strength'] if col in filtered_df.columns])    
     # Display the filtered table
     st.dataframe(filtered_df1, use_container_width=True)
-    st.dataframe(filtered_df, use_container_width=True)
     
     
  # === Legend Section ===
