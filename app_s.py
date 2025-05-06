@@ -426,18 +426,39 @@ try:
     
     st.markdown("## Filtered Results")
     
+    # Check for duplicate columns and remove them
+    if df.columns.duplicated().any():
+        st.warning(f"Duplicate column names found: {df.columns[df.columns.duplicated()].tolist()}")
+        df = df.loc[:, ~df.columns.duplicated()]  # Remove duplicate columns
+    
     # Apply filters
     filtered_df = df.copy()
-    if selected_symbol != "All":
+    
+    #Apply symbol filter
+    if selected_symbol != "All" and 'symbol' in filtered_df.columns:
         filtered_df = filtered_df[filtered_df['symbol'] == selected_symbol]
-    if selected_divergence != "All":
+
+    # Apply divergence filter
+    if selected_divergence != "All" and 'rsi_divergence' in filtered_df.columns:
         filtered_df = filtered_df[filtered_df['rsi_divergence'] == selected_divergence]
-    if selected_volume_analysis != "All":
+
+    # Apply volume analysis filter
+    if selected_volume_analysis != "All" and 'volume_analysis' in filtered_df.columns:
         filtered_df = filtered_df[filtered_df['volume_analysis'] == selected_volume_analysis]
-    filtered_df = filtered_df[
-        (filtered_df['rsi'].between(rsi_range[0], rsi_range[1])) &
-        (filtered_df['date'].between(pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])))
+
+    # Apply RSI and date range filters
+    if 'rsi' in filtered_df.columns and 'date' in filtered_df.columns:
+        filtered_df = filtered_df[
+            (filtered_df['rsi'].between(rsi_range[0], rsi_range[1])) &
+            (filtered_df['date'].between(pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])))
     ]
+
+    # Handle empty DataFrame
+    if filtered_df.empty:
+        st.info("No results match the selected filters.")
+    else:
+        st.dataframe(filtered_df, use_container_width=True)
+    
     
     # Apply turnover range filters
     if selected_turnover_ranges:
