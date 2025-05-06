@@ -271,6 +271,11 @@ try:
     if df.empty:
         st.warning("No data found in the table.")
         st.stop()
+        
+    # Check for duplicate columns and remove them
+    if df.columns.duplicated().any():
+        st.warning(f"Duplicate column names found: {df.columns[df.columns.duplicated()].tolist()}")
+        df = df.loc[:, ~df.columns.duplicated()]  # Remove duplicate columns
 
     # Remove unwanted columns
     df = df.drop(columns=[col for col in ['id'] if col in df.columns])
@@ -380,7 +385,7 @@ try:
 
     # === Filters Section ===
     st.markdown("### 🔍 DIY & Take Control of Your Analysis")
-    st.markdown("Use the filters below to activate meet your selection criteria.")
+    st.markdown("Use the filters below to invoke your selection criteria.")
     st.markdown("You can filter stocks based on RSI, Divergence, Volume Analysis, and more.")
     st.markdown("")
     # Dropdown filters
