@@ -76,11 +76,11 @@ def load_data():
 
         # Ensure 'date' is timezone-naive if it's not already, for consistent comparisons later
         if 'date' in df.columns and pd.api.types.is_datetime64tz_dtype(df['date']):
-             df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
             # Ensure 'date' is timezone-naive if it's not already, for consistent comparisons later
             # Use isinstance(dtype, pd.DatetimeTZDtype) as recommended by the warning
             if isinstance(df['date'].dtype, pd.DatetimeTZDtype): # <--- Corrected line
-                 df['date'] = df['date'].dt.tz_convert(None)
+                df['date'] = df['date'].dt.tz_convert(None)
             # Drop rows where date conversion failed
             df.dropna(subset=['date'], inplace=True)
 
