@@ -208,7 +208,7 @@ def calculate_performance(tier_2_picks):
     st.markdown(f"*(Interpretation: If you invested 1% of your portfolio in each counter, the total portfolio gain would be ~{overall_pnl_percent_sum:.2f}%)*")
     st.markdown(f"*(Note: This is not a portfolio return calculation, just a sum of individual percentage gains)*")
 
-    st.markdown()
+    st.markdown("")
     st.markdown(f"**% of Stocks Below -10%:** {below_neg_10:.2f}%")
     st.markdown(f"**% of Stocks Between -5% and 0%:** {minus_5_to_0:.2f}%")
     st.markdown(f"**% of Stocks Between 0% and 5%:**<span style='font-size:18px; color:green;'>{zero_to_5:.2f}%,</span>", unsafe_allow_html=True)
