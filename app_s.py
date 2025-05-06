@@ -387,6 +387,7 @@ try:
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
             st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
             
+            st.dataframe(tier_2_picks, use_container_width=True)
             st.dataframe(tier_2_picks_show, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
