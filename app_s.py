@@ -122,7 +122,7 @@ def calculate_performance(tier_2_picks):
 
             if cse_data is not None and not cse_data.empty:
                 # Get the initial close price (from the earliest date in the filtered data)
-                oldest_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min()
+                oldest_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min().date()
                 initial_close = tier_2_picks[
                     (tier_2_picks['symbol'] == symbol) & (tier_2_picks['date'] == oldest_date)
                 ]['closing_price'].iloc[0]
@@ -141,9 +141,9 @@ def calculate_performance(tier_2_picks):
                 performance_data.append({
                     'Date Detected': oldest_date,
                     'symbol': symbol,
-                    'Initial Close': initial_close,
+                    'Detected Day Close': initial_close,
                     'Latest Close': latest_close,
-                    'Capital Gain (%)': capital_gain
+                    'Capital Gain Til Date(%)': capital_gain
                 })
         except Exception as e:
             st.warning(f"Could not fetch data for {symbol}: {e}")
@@ -161,10 +161,10 @@ def calculate_performance(tier_2_picks):
         st.markdown("### 📊 Maverick's Picks Performance")
         st.dataframe(
             performance_df.style.format({
-                'Initial Close': '{:,.2f}',
+                'Detected Day Close': '{:,.2f}',
                 'Latest Close': '{:,.2f}',
-                'Capital Gain (%)': '{:,.2f}'
-            }).applymap(highlight_gain, subset=['Capital Gain (%)']),
+                'Capital Gain Til Date(%)': '{:,.2f}'
+            }).applymap(highlight_gain, subset=['Capital Gain Til Date(%)']),
             use_container_width=True
         )
     else:
@@ -412,7 +412,7 @@ try:
         else:
             st.info("No stocks meet Tier 2 conditions.")
             
-        st.markdown("### Maverick's Picks performance")
+        
         if not tier_2_picks.empty:
             # Call the performance calculation function
             calculate_performance(tier_2_picks)
