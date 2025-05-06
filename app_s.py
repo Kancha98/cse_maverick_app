@@ -150,6 +150,18 @@ def calculate_performance(tier_2_picks):
 
     # Convert performance data to a DataFrame
     performance_df = pd.DataFrame(performance_data)
+    
+    # Sort the DataFrame by Capital Gain in descending order
+    performance_df = performance_df.sort_values(by='Capital Gain Til Date(%)', ascending=False)
+    
+    # Calculate the number of counters and overall PNL
+    num_counters = len(performance_df)
+    overall_pnl = performance_df['Capital Gain Til Date(%)'].sum() * 100 / num_counters if num_counters > 0 else 0
+    overall_pnl = overall_pnl / 100 * num_counters  # Adjusted to reflect the number of counters
+    
+    # Display the number of counters and overall PNL
+    st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
+    st.markdown(f"**Overall PNL (if 100 units were invested in each counter):** {overall_pnl:.2f} Rs")
 
     # Highlight positive and negative gains
     def highlight_gain(val):
