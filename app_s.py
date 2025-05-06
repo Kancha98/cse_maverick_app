@@ -353,9 +353,6 @@ try:
                                  'ema_20', 'ema_50','ema_100', 'ema_200','Date'
                                                             ]
             
-            # Format the Date column to remove the time component
-            if 'date' in tier_2_picks.columns:
-                tier_2_picks['date'] = pd.to_datetime(tier_2_picks['date']).dt.date
             
             # Reset the index to remove the index column
             tier_2_picks = tier_2_picks.reset_index(drop=True)
@@ -375,8 +372,13 @@ try:
                 'closing_price': "Today's Closing Price",
                 'prev_close': "Previous Day Closing Price"
                 }
-
+            
+            
             tier_2_picks_show = tier_2_picks.copy()
+            
+            # Format the Date column to remove the time component
+            if 'date' in tier_2_picks_show.columns:
+                tier_2_picks_show['date'] = pd.to_datetime(tier_2_picks_show['date']).dt.date
             
             tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
             
