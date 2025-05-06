@@ -122,7 +122,7 @@ def calculate_performance(tier_2_picks):
 
             if cse_data is not None and not cse_data.empty:
                 # Get the initial close price (from the earliest date in the filtered data)
-                oldest_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min().date()
+                oldest_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min()
                 initial_close = tier_2_picks[
                     (tier_2_picks['symbol'] == symbol) & (tier_2_picks['date'] == oldest_date)
                 ]['closing_price'].iloc[0]
