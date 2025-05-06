@@ -203,7 +203,7 @@ def calculate_performance(tier_2_picks):
     # Display Summary Statistics
     st.markdown("### 📊 Summary Statistics")
     st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
-    st.markdown(f"**Hit Rate (Positive Gains):** {hit_rate:.2f}%")
+    st.markdown(f"<span style='font-size:18px; color:green;'>**Hit Rate (Positive Gains):** {hit_rate:.2f}%</span>", unsafe_allow_html=True)
     st.markdown(f"**Total Capital Gain % Sum (Sum of individual stock % gains):** {overall_pnl_percent_sum:.2f}%")
     st.markdown(f"*(Interpretation: If you invested 1% of your portfolio in each counter, the total portfolio gain would be ~{overall_pnl_percent_sum:.2f}%)*")
     st.markdown(f"*(Note: This is not a portfolio return calculation, just a sum of individual percentage gains)*")
@@ -212,9 +212,9 @@ def calculate_performance(tier_2_picks):
     st.markdown(f"**Hit Rate (Positive Counters / All Counters):** {hit_rate:.2f}%")
     st.markdown(f"**% of Stocks Below -10%:** {below_neg_10:.2f}%")
     st.markdown(f"**% of Stocks Between -5% and 0%:** {minus_5_to_0:.2f}%")
-    st.markdown(f"**% of Stocks Between 0% and 5%:** {zero_to_5:.2f}%")
-    st.markdown(f"**% of Stocks Above 5%:** {above_5:.2f}%")
-    st.markdown(f"**% of Stocks Above 10%:** {above_10:.2f}%")
+    st.markdown(f"<span style='font-size:18px; color:green;'>**% of Stocks Between 0% and 5%:** {zero_to_5:.2f}%,</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='font-size:18px; color:green;'>**% of Stocks Above 5%:** {above_5:.2f}%,</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='font-size:18px; color:green;'>**% of Stocks Above 10%:** {above_10:.2f}%</span>", unsafe_allow_html=True)
 
 
 
