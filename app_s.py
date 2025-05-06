@@ -73,6 +73,12 @@ def load_data():
         # conn.close() # <--- REMOVE THIS LINE! (You already did this, good!)
 
         df = pd.DataFrame(rows, columns=colnames)
+        
+        # Ensure unique column names
+        if df.columns.duplicated().any():
+            st.warning(f"Duplicate column names found: {df.columns[df.columns.duplicated()].tolist()}")
+            df.columns = [f"{col}_{i}" if df.columns.duplicated()[i] else col for i, col in enumerate(df.columns)]
+        
         if 'date' in df.columns:
             df['date'] = pd.to_datetime(df['date'])
 
