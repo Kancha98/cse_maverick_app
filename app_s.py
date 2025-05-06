@@ -277,32 +277,6 @@ try:
             st.dataframe(tier_2_picks, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
-    """        
-    # === Chart Section ===
-    if not filtered_df.empty:
-        selected_chart_symbol = st.selectbox("📊 View Chart for Symbol", filtered_df['Symbol'].unique())
-        chart_df = filtered_df[filtered_df['Symbol'] == selected_chart_symbol]
-        
-        # Ensure data is sorted by Date
-        chart_df = chart_df.sort_values(by='Date')
-        
-        fig = px.line(chart_df, 
-                      x='Date', 
-                      y='Closing Price', 
-                      title=f"📈 Closing Price Trend for {selected_chart_symbol}",
-                      markers=True)
-        
-        fig.update_traces(line=dict(shape='linear'))  # Ensure smooth lines
-        fig.update_layout(
-            xaxis_title="Date",
-            yaxis_title="Closing Price",
-            template="plotly_dark"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-        
-    else:
-        st.info("No data matches the selected filters.")
-    """
     # === Legend Section ===
     st.markdown("## 📘 Legend: Understanding Key Terms")
     st.markdown("""
