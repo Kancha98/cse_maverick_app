@@ -535,7 +535,7 @@ try:
     
     filtered_df_show = filtered_df.copy()
         
-            # Sort by Date
+    # Sort by Date
     filtered_df_show = filtered_df_show.sort_values(by='date', ascending=False)
             
     
@@ -550,6 +550,8 @@ try:
             
     filtered_df_show.columns = [col.replace('_', ' ').title() for col in filtered_df_show.columns]
             
+    filtered_df_show = filtered_df_show.reset_index(drop=True)
+    
     # Format the Date column to remove the time component
     if 'Date' in filtered_df_show.columns:
             filtered_df_show['Date'] = pd.to_datetime(filtered_df_show['Date']).dt.date
