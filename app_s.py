@@ -352,6 +352,7 @@ try:
             columns_to_remove = ['vol_avg_5d', 'vol_avg_20d']
             tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
             
+            
             # Format numeric values with commas
             for col in ['turnover', 'volume']:
                 if col in tier_2_picks.columns:
@@ -363,6 +364,7 @@ try:
             
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
             st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
+            tier_2_picks.columns = [col.replace('_', ' ').title() for col in tier_2_picks.columns]
             st.dataframe(tier_2_picks, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
