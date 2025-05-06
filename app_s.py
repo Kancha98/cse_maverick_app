@@ -482,7 +482,7 @@ try:
 
     
     # Rename headers
-    #filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
+    filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
 
     #numeric_columns = [
     #'Closing Price', 'Prev Close', 'Turnover'
