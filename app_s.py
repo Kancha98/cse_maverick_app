@@ -34,13 +34,16 @@ def init_connection():
 # It depends on the connection obtained from init_connection.
 @st.cache_data(ttl=600)
 def load_data():
-    st.write("Attempting to load data...") # Debugging
+    status_message = st.empty()
+
+    status_message.text("Attempting to load data...") # Write initial status
+    
     # Get a connection from the cache. It will be created only once by init_connection
     # until the cache is cleared or arguments change.
     conn = init_connection()
 
     if conn is None:
-        st.error("Cannot load data: Database connection failed.")
+        status_message.error("Cannot load data: Database connection failed.")
         return pd.DataFrame() # Return empty DataFrame if connection wasn't established
 
     # --- Add a try-except block to handle stale connections ---
@@ -49,20 +52,21 @@ def load_data():
         # Check if the connection is closed before using (optional but can help catch early)
         # Note: Checking conn.closed might not always catch a network-level closure immediately
         if conn.closed != 0:
-             st.warning("Cached connection found but it was closed. Attempting to re-establish...")
+             status_message.warning("Cached connection found but it was closed. Attempting to re-establish...")
              init_connection.clear() # Clear the broken cached connection
              conn = init_connection() # Try to get a new connection immediately
              if conn is None:
-                 st.error("Failed to re-establish database connection.")
+                 status_message.error("Failed to re-establish database connection.")
                  return pd.DataFrame() # Return empty if reconnect failed
 
 
         with conn.cursor() as cur:
-            st.write("Executing SQL query...") # Debugging
+            status_message.text("Executing SQL query...") # Update status
             cur.execute("SELECT * FROM stock_analysis_all_results;")
             colnames = [desc[0] for desc in cur.description]
             rows = cur.fetchall()
-        st.success("Data loaded successfully.") # Debugging
+            
+        status_message.success("Data loaded successfully.") # Debugging
         # DO NOT CLOSE THE CONNECTION HERE! @st.cache_resource manages its lifecycle.
         # conn.close() # <--- REMOVE THIS LINE! (You already did this, good!)
 
@@ -79,7 +83,7 @@ def load_data():
 
     except psycopg2.OperationalError as e:
         # This specific error often indicates connection problems (like being closed)
-        st.error(f"Database Operational Error: {e}")
+        status_message.error(f"Database Operational Error: {e}")
         st.info("Attempting to clear cached connection and reload.")
         # Clear the cached connection resource so init_connection will run again
         init_connection.clear()
@@ -105,7 +109,7 @@ st.markdown("Let's find Gems!")
 if st.button("Reload Data"):
     load_data.clear() # Clear the data cache
     init_connection.clear() # Clear the connection cache
-    st.experimental_rerun() # Rerun the app immediately
+    st.rerun() # Rerun the app immediately
 
 
 # --- Streamlit App ---
