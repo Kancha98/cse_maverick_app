@@ -464,7 +464,7 @@ try:
             recurring_stocks = recurring_stocks[recurring_stocks >= 2]  # Filter stocks with count >= 2
 
             if not recurring_stocks.empty:
-                st.markdown("## Most Recurring Stocks in Tier 2 Picks:")
+                st.markdown("Most Recurring Stocks in Tier 2 Picks:")
                 for stock, count in recurring_stocks.items():
                     st.markdown(f"- **{stock}**: {count} times")
             else:
