@@ -370,7 +370,16 @@ try:
             
             tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
             
-            tier_2_picks.columns = [col.replace('_', ' ').title() for col in tier_2_picks.columns]
+            column_rename_map = {
+                'change_pct': '% Change',
+                'closing_price': "Today's Closing Price",
+                'prev_close': "Previous Day Closing Price"
+                }
+
+            tier_2_picks = tier_2_picks.rename(columns=column_rename_map)
+            
+            tier_2_picks.columns = [col if col == 'symbol' else 
+                                    col.replace('_', ' ').title() for col in tier_2_picks.columns]
             
             
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
