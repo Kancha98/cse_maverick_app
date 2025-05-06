@@ -212,8 +212,8 @@ def calculate_performance(tier_2_picks):
     st.markdown(f"**% of Stocks Below -10%:** {below_neg_10:.2f}%")
     st.markdown(f"**% of Stocks Between -5% and 0%:** {minus_5_to_0:.2f}%")
     st.markdown(f"**% of Stocks Between 0% and 5%:**<span style='font-size:18px; color:green;'> {zero_to_5:.2f}%,</span>", unsafe_allow_html=True)
-    st.markdown(f"**% of Stocks Above 5%:** <span style='font-size:18px; color:green;'> {above_5:.2f}%,</span>", unsafe_allow_html=True)
-    st.markdown(f"**% of Stocks Above 10%:**<span style='font-size:18px; color:green;'> {above_10:.2f}%</span>", unsafe_allow_html=True)
+    st.markdown(f"**% of Stocks Above 5%:** <span style='font-size:18px; color:green;'> {above_5:.2f}%, </span>", unsafe_allow_html=True)
+    st.markdown(f"**% of Stocks Above 10%:**<span style='font-size:18px; color:green;'> {above_10:.2f}% </span>", unsafe_allow_html=True)
 
 
 
