@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from tvDatafeed import TvDatafeed, Interval
+from streamlit.components.v1 import html
 import psycopg2
 import os
 import urllib.parse as urlparse
@@ -103,6 +104,64 @@ def load_data():
         # Catch any other unexpected errors during data loading
         st.error(f"An unexpected error occurred while loading data: {e}")
         return pd.DataFrame()
+
+from tvDatafeed import TvDatafeed, Interval
+from streamlit.components.v1 import html
+
+# Initialize TradingView datafeed
+tv = TvDatafeed()
+
+def calculate_performance(filtered_df):
+    """Calculate Maverick's Picks performance based on capital gain."""
+    performance_data = []
+
+    for symbol in filtered_df['Symbol'].unique():
+        try:
+            # Fetch historical data for the stock symbol
+            cse_data = tv.get_hist(symbol=symbol, exchange='CSELK', interval=Interval.in_daily, n_bars=200)
+
+            if cse_data is not None and not cse_data.empty:
+                # Get the initial close price (from the earliest date in the filtered data)
+                initial_date = filtered_df[filtered_df['Symbol'] == symbol]['Date'].min()
+                initial_close = filtered_df[(filtered_df['Symbol'] == symbol) & (filtered_df['Date'] == initial_date)]['Closing Price'].iloc[0]
+
+                # Get the latest close price from TradingView data
+                latest_close = cse_data['close'].iloc[-1]
+
+                # Calculate capital gain
+                capital_gain = ((latest_close - initial_close) / initial_close) * 100
+
+                # Append the result to the performance data
+                performance_data.append({
+                    'Symbol': symbol,
+                    'Initial Close': initial_close,
+                    'Latest Close': latest_close,
+                    'Capital Gain (%)': capital_gain
+                })
+        except Exception as e:
+            st.warning(f"Could not fetch data for {symbol}: {e}")
+
+    # Convert performance data to a DataFrame
+    performance_df = pd.DataFrame(performance_data)
+
+    # Highlight positive and negative gains
+    def highlight_gain(val):
+        color = 'green' if val > 0 else 'red'
+        return f'color: {color}'
+
+    # Display the performance table
+    if not performance_df.empty:
+        st.markdown("### 📊 Maverick's Picks Performance")
+        st.dataframe(
+            performance_df.style.format({
+                'Initial Close': '{:,.2f}',
+                'Latest Close': '{:,.2f}',
+                'Capital Gain (%)': '{:,.2f}'
+            }).applymap(highlight_gain, subset=['Capital Gain (%)']),
+            use_container_width=True
+        )
+    else:
+        st.info("No performance data available.")
 
 
 # --- Streamlit App ---
@@ -325,7 +384,7 @@ try:
         else:
             st.info("No stocks meet Tier 1 conditions.")
         # Display Tier 2 Picks
-        st.markdown("### Tier 🔹 2 Picks")
+        st.markdown("### 🔹Tier  2 Picks")
         if not tier_2_picks.empty:
             
             columns_to_remove = ['vol_avg_5d', 'vol_avg_20d']
@@ -345,6 +404,13 @@ try:
             st.dataframe(tier_2_picks, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
+            
+        st.markdown("### Maverick's Picks performance")
+        if not tier_2_picks.empty:
+            # Call the performance calculation function
+            calculate_performance(tier_2_picks)
+    
+    
     # === Legend Section ===
     st.markdown("## 📘 Legend: Understanding Key Terms")
     st.markdown("""
