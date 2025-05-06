@@ -173,28 +173,13 @@ def calculate_performance(tier_2_picks):
     count_plus_5_to_plus_10 = ((gains >= 5) & (gains < 10)).sum()
     count_above_plus_10 = (gains >= 10).sum()
 
-    # Calculate percentages for buckets
-    pct_below_minus_10 = (count_below_minus_10 / num_counters * 100) if num_counters > 0 else 0
-    pct_minus_10_to_minus_5 = (count_minus_10_to_minus_5 / num_counters * 100) if num_counters > 0 else 0
-    pct_minus_5_to_plus_5 = (count_minus_5_to_plus_5 / num_counters * 100) if num_counters > 0 else 0
-    pct_plus_5_to_plus_10 = (count_plus_5_to_plus_10 / num_counters * 100) if num_counters > 0 else 0
-    pct_above_plus_10 = (count_above_plus_10 / num_counters * 100) if num_counters > 0 else 0
-    
-    # Display Summary Statistics
-    st.markdown("### 📊 Summary Statistics")
-    st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
-    st.markdown(f"**Hit Rate (Positive Gains):** {hit_rate:.2f}%")
-    st.markdown(f"**Total Capital Gain % Sum (Sum of individual stock % gains):** {overall_pnl_percent_sum:.2f}%")
-    st.markdown(f"*(Interpretation: If you invested 1% of your portfolio in each counter, the total portfolio gain would be ~{overall_pnl_percent_sum:.2f}%)*")
-    st.markdown(f"*(Note: This is not a portfolio return calculation, just a sum of individual percentage gains)*")
+    # Calculate the percentage of stocks in different capital gain ranges
+    below_neg_10 = len(performance_df[performance_df['Capital Gain Til Date(%)'] < -10]) / num_counters * 100 if num_counters > 0 else 0
+    minus_5_to_0 = len(performance_df[(performance_df['Capital Gain Til Date(%)'] >= -5) & (performance_df['Capital Gain Til Date(%)'] < 0)]) / num_counters * 100 if num_counters > 0 else 0
+    zero_to_5 = len(performance_df[(performance_df['Capital Gain Til Date(%)'] >= 0) & (performance_df['Capital Gain Til Date(%)'] < 5)]) / num_counters * 100 if num_counters > 0 else 0
+    above_10 = len(performance_df[performance_df['Capital Gain Til Date(%)'] >= 10]) / num_counters * 100 if num_counters > 0 else 0
+    above_5 = len(performance_df[performance_df['Capital Gain Til Date(%)'] >= 5]) / num_counters * 100 if num_counters > 0 else 0
 
-
-    st.markdown("### 📈 Performance Distribution")
-    st.markdown(f"- **Below -10%:** {pct_below_minus_10:.2f}% ({count_below_minus_10} counters)")
-    st.markdown(f"- **-10% to -5%:** {pct_minus_10_to_minus_5:.2f}% ({count_minus_10_to_minus_5} counters)")
-    st.markdown(f"- **-5% to +5%:** {pct_minus_5_to_plus_5:.2f}% ({count_minus_5_to_plus_5} counters)")
-    st.markdown(f"- **+5% to +10%:** {pct_plus_5_to_plus_10:.2f}% ({count_plus_5_to_plus_10} counters)")
-    st.markdown(f"- **Above +10%:** {pct_above_plus_10:.2f}% ({count_above_plus_10} counters)")
     
     # Highlight positive and negative gains
     def highlight_gain(val):
@@ -214,6 +199,22 @@ def calculate_performance(tier_2_picks):
         )
     else:
         st.info("No performance data available.")
+        
+    # Display Summary Statistics
+    st.markdown("### 📊 Summary Statistics")
+    st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
+    st.markdown(f"**Hit Rate (Positive Gains):** {hit_rate:.2f}%")
+    st.markdown(f"**Total Capital Gain % Sum (Sum of individual stock % gains):** {overall_pnl_percent_sum:.2f}%")
+    st.markdown(f"*(Interpretation: If you invested 1% of your portfolio in each counter, the total portfolio gain would be ~{overall_pnl_percent_sum:.2f}%)*")
+    st.markdown(f"*(Note: This is not a portfolio return calculation, just a sum of individual percentage gains)*")
+
+
+    st.markdown(f"**Hit Rate (Positive Counters / All Counters):** {hit_rate:.2f}%")
+    st.markdown(f"**% of Stocks Below -10%:** {below_neg_10:.2f}%")
+    st.markdown(f"**% of Stocks Between -5% and 0%:** {minus_5_to_0:.2f}%")
+    st.markdown(f"**% of Stocks Between 0% and 5%:** {zero_to_5:.2f}%")
+    st.markdown(f"**% of Stocks Above 5%:** {above_5:.2f}%")
+    st.markdown(f"**% of Stocks Above 10%:** {above_10:.2f}%")
 
 
 
