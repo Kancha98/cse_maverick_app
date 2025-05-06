@@ -428,7 +428,7 @@ try:
     selected_turnover_ranges = st.multiselect(
         "Select Turnover Ranges",
         options=list(turnover_ranges.keys()),
-        default=["100K-1M", "1M-10M"]
+        default=["10M-100M", "100M+"]
     )
 
     # Range sliders
