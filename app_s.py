@@ -156,13 +156,46 @@ def calculate_performance(tier_2_picks):
     
     # Calculate the number of counters and overall PNL
     num_counters = len(performance_df)
-    overall_pnl = performance_df['Capital Gain Til Date(%)'].sum() * 100 / num_counters if num_counters > 0 else 0
-    overall_pnl = overall_pnl / 100 * num_counters  # Adjusted to reflect the number of counters
     
-    # Display the number of counters and overall PNL
-    st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
-    st.markdown(f"**Overall PNL (if 100 units were invested in each counter):** {overall_pnl:.2f} Rs")
+    overall_pnl_percent_sum = performance_df['Capital Gain Til Date(%)'].sum()
+    overall_pnl_if_100_each = overall_pnl_percent_sum # 
+    
+    # Calculate Hit Rate (Positive Gain / Total Counters)
+    positive_gains_count = (performance_df['Capital Gain Til Date(%)'] > 0).sum()
+    hit_rate = (positive_gains_count / num_counters * 100) if num_counters > 0 else 0
 
+    # Calculate Performance Buckets
+    gains = performance_df['Capital Gain Til Date(%)']
+
+    count_below_minus_10 = (gains < -10).sum()
+    count_minus_10_to_minus_5 = ((gains >= -10) & (gains < -5)).sum()
+    count_minus_5_to_plus_5 = ((gains >= -5) & (gains < 5)).sum()
+    count_plus_5_to_plus_10 = ((gains >= 5) & (gains < 10)).sum()
+    count_above_plus_10 = (gains >= 10).sum()
+
+    # Calculate percentages for buckets
+    pct_below_minus_10 = (count_below_minus_10 / num_counters * 100) if num_counters > 0 else 0
+    pct_minus_10_to_minus_5 = (count_minus_10_to_minus_5 / num_counters * 100) if num_counters > 0 else 0
+    pct_minus_5_to_plus_5 = (count_minus_5_to_plus_5 / num_counters * 100) if num_counters > 0 else 0
+    pct_plus_5_to_plus_10 = (count_plus_5_to_plus_10 / num_counters * 100) if num_counters > 0 else 0
+    pct_above_plus_10 = (count_above_plus_10 / num_counters * 100) if num_counters > 0 else 0
+    
+    # Display Summary Statistics
+    st.markdown("### 📊 Summary Statistics")
+    st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
+    st.markdown(f"**Hit Rate (Positive Gains):** {hit_rate:.2f}%")
+    st.markdown(f"**Total Capital Gain % Sum (Sum of individual stock % gains):** {overall_pnl_percent_sum:.2f}%")
+    st.markdown(f"*(Interpretation: If you invested 1% of your portfolio in each counter, the total portfolio gain would be ~{overall_pnl_percent_sum:.2f}%)*")
+    st.markdown(f"*(Note: This is not a portfolio return calculation, just a sum of individual percentage gains)*")
+
+
+    st.markdown("### 📈 Performance Distribution")
+    st.markdown(f"- **Below -10%:** {pct_below_minus_10:.2f}% ({count_below_minus_10} counters)")
+    st.markdown(f"- **-10% to -5%:** {pct_minus_10_to_minus_5:.2f}% ({count_minus_10_to_minus_5} counters)")
+    st.markdown(f"- **-5% to +5%:** {pct_minus_5_to_plus_5:.2f}% ({count_minus_5_to_plus_5} counters)")
+    st.markdown(f"- **+5% to +10%:** {pct_plus_5_to_plus_10:.2f}% ({count_plus_5_to_plus_10} counters)")
+    st.markdown(f"- **Above +10%:** {pct_above_plus_10:.2f}% ({count_above_plus_10} counters)")
+    
     # Highlight positive and negative gains
     def highlight_gain(val):
         color = 'green' if val > 0 else 'red'
@@ -181,6 +214,7 @@ def calculate_performance(tier_2_picks):
         )
     else:
         st.info("No performance data available.")
+
 
 
 # --- Streamlit App ---
