@@ -376,6 +376,10 @@ try:
             
             tier_2_picks_show = tier_2_picks.copy()
             
+            # Format the Date column to remove the time component
+            if 'Date' in tier_2_picks_show.columns:
+                tier_2_picks_show['Date'] = pd.to_datetime(tier_2_picks_show['Date']).dt.date
+            
             tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
             
             tier_2_picks_show.columns = [col.replace('_', ' ').title() for col in tier_2_picks_show.columns]
