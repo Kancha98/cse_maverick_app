@@ -277,7 +277,7 @@ try:
             st.dataframe(tier_2_picks, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
-            
+    """        
     # === Chart Section ===
     if not filtered_df.empty:
         selected_chart_symbol = st.selectbox("📊 View Chart for Symbol", filtered_df['Symbol'].unique())
@@ -302,7 +302,7 @@ try:
         
     else:
         st.info("No data matches the selected filters.")
-        
+    """
     # === Legend Section ===
     st.markdown("## 📘 Legend: Understanding Key Terms")
     st.markdown("""
