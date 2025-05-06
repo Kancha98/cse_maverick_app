@@ -3,3 +3,4 @@ pandas
 psycopg2-binary
 plotly
 python-dotenv
+git+https://github.com/rongardF/tvdatafeed.git
