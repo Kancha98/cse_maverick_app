@@ -500,8 +500,10 @@ try:
     for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
         filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
 
-    filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 'Ema 100', 'Ema 200', 'Last Updated'] if col in filtered_df.columns])
-        
+    filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 
+                                                            'Ema 100', 'Ema 200', 'Last Updated','Date', 'Symbol', 
+                                                            'Closing Price', 'Prev Close', 'Change Pct', 'Turnover', 
+                                                            'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 'Relative Strength'] if col in filtered_df.columns])    
     # Display the filtered table
     st.dataframe(filtered_df, use_container_width=True)
     
