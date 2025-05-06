@@ -352,7 +352,7 @@ try:
             columns_to_remove = ['vol_avg_5d','vol_avg_20d',
                                  'ema_20', 'ema_50','ema_100', 'ema_200','Date'
                                                             ]
-            tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
+            
             
             
             # Format numeric values with commas
@@ -362,6 +362,8 @@ try:
     
             # Sort by Date
             tier_2_picks = tier_2_picks.sort_values(by='date', ascending=False)
+            
+            tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
             
             
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
