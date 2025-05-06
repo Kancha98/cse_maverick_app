@@ -31,12 +31,16 @@ def init_connection():
 # --- Load Data ---
 @st.cache_data(ttl=600)
 def load_data():
+    # Get a connection from the cache. It will be created only once by init_connection.
     conn = init_connection()
+    # Use the connection within a 'with' block for safe cursor handling
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM stock_analysis_all_results;")
         colnames = [desc[0] for desc in cur.description]
         rows = cur.fetchall()
-    conn.close()
+    # DO NOT CLOSE THE CONNECTION HERE! @st.cache_resource manages its lifecycle.
+    # conn.close() # <--- REMOVE THIS LINE!
+
     df = pd.DataFrame(rows, columns=colnames)
     if 'date' in df.columns:
         df['date'] = pd.to_datetime(df['date'])
