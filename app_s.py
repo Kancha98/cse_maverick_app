@@ -378,7 +378,7 @@ try:
 
             tier_2_picks = tier_2_picks.rename(columns=column_rename_map)
             
-            tier_2_picks.columns = [col if col == 'symbol' else 
+            tier_2_picks.columns = [col if col == 'symbol' | col == 'date'  else 
                                     col.replace('_', ' ').title() for col in tier_2_picks.columns]
             
             
