@@ -236,6 +236,7 @@ try:
 
         # Display Tier 1 Picks
         st.markdown("### 🌟 Tier 1 Picks")
+        st.markdown("These are the counters identified by Maverick as having the highest potential for Gains.")
         if not tier_1_picks.empty:
             
             columns_to_remove = ['vol_avg_5d', 'vol_avg_20d']
