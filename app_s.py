@@ -369,7 +369,7 @@ try:
             
             column_rename_map = {
                 'change_pct': '% Change',
-                'closing_price': "Today's Closing Price",
+                'closing_price': "Today Closing Price",
                 'prev_close': "Previous Day Closing Price"
                 }
             
@@ -530,13 +530,32 @@ try:
                                                             'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 
                                                             'Relative Strength','vol_avg_5d','vol_avg_20d',
                                                             'ema_20', 'ema_50', 
-                                                            'ema_100', 'ema_200'
+                                                            'ema_100', 'ema_200', 'Last Updated'
                                                             ] if col in filtered_df.columns])    
     
-    filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
+    filtered_df_show = filtered_df.copy()
+        
+            # Sort by Date
+    filtered_df_show = filtered_df_show.sort_values(by='date', ascending=False)
+            
+    
+            
+    column_rename_map = {
+                'change_pct': '% Change',
+                'closing_price': "Today Closing Price",
+                'prev_close': "Previous Day Closing Price"
+                }
+            
+    filtered_df_show = filtered_df_show.rename(columns=column_rename_map)
+            
+    filtered_df_show.columns = [col.replace('_', ' ').title() for col in filtered_df_show.columns]
+            
+    # Format the Date column to remove the time component
+    if 'Date' in filtered_df_show.columns:
+            filtered_df_show['Date'] = pd.to_datetime(filtered_df_show['Date']).dt.date
     
     # Display the filtered table
-    st.dataframe(filtered_df, use_container_width=True)
+    st.dataframe(filtered_df_show, use_container_width=True)
     
     
  # === Legend Section ===
