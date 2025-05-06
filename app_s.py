@@ -376,11 +376,12 @@ try:
                 'prev_close': "Previous Day Closing Price"
                 }
 
-            tier_2_picks = tier_2_picks.rename(columns=column_rename_map)
-            
-            tier_2_picks.columns = [col.replace('_', ' ').title() for col in tier_2_picks.columns]
-            
             tier_2_picks_show = tier_2_picks.copy()
+            
+            tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
+            
+            tier_2_picks_show.columns = [col.replace('_', ' ').title() for col in tier_2_picks_show.columns]
+            
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
             st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
             
