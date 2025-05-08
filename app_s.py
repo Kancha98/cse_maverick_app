@@ -123,30 +123,31 @@ def get_mavericks_picks(results_df):
     
     
     tier_1_conditions = (
-        (results_df['rsi_divergence'] == "Bullish Divergence") &
-        (results_df['volume_analysis'].isin(["Emerging Bullish Momentum", "Increase in weekly Volume Activity Detected"]))
-    ) & (
-        (results_df['turnover'] > 999999) &
-        (results_df['volume'] > 9999) &
-        (results_df['relative_strength'] >= 1)
-    )
+        
+        (results_df['volume_analysis'].isin(["High Bullish Momentum","Emerging Bullish Momentum", "Increase in weekly Volume Activity Detected"]))
+    ) 
 
     tier_2_conditions = (
-        (results_df['volume_analysis'].isin(["Emerging Bullish Momentum", "High Bullish Momentum"]))&
-        (results_df['turnover'] > 999999) &
-        (results_df['volume'] > 9999) &
-        (results_df['relative_strength'] >= 1)
+        
+        (results_df['rsi_divergence'] == "Bearish Divergence")
     ) | (
-        (results_df['rsi_divergence'] == "Bullish Divergence")&
-        (results_df['turnover'] > 999999) &
-        (results_df['volume'] > 9999) 
+        (results_df['rsi_divergence'] == "Bullish Divergence")
 
     )
 
     tier_1_picks = results_df[tier_1_conditions]
     tier_2_picks = results_df[tier_2_conditions]
+    
+    tier_3_conditions = (
+        (results_df['volume_analysis'].isin(["Emerging Bullish Momentum", "High Bullish Momentum"]))&
+        (results_df['turnover'] > 999999) &
+        (results_df['volume'] > 9999) &
+        (results_df['relative_strength'] >= 1)
 
-    return tier_1_picks, tier_2_picks
+    )
+    
+    tier_3_picks = results_df[tier_3_conditions]
+    return tier_1_picks, tier_2_picks,tier_3_picks
 
 # --- Streamlit App ---
 st.title("📈 CSE Gem Finder by CSE Maverick")
@@ -190,11 +191,9 @@ try:
     #st.dataframe(df, use_container_width=True)
     
     if not df.empty:
-        st.markdown("## 💎 Maverick's Potential Gems")
-        
         # Add a date picker for filtering Maverick's Picks
         selected_maverick_date = st.date_input(
-        "Select Start Date for Maverick's Picks",
+        "Select Start Date for Filtering Stocks",
         value=df['date'].min().date(),  # Default to the earliest date in the filtered data
         min_value=df['date'].min().date(),
         max_value=df['date'].max().date()
@@ -218,88 +217,113 @@ try:
         #st.write("Filtered Maverick DataFrame:", maverick_filtered_df)
         
         # Get Tier 1 and Tier 2 picks
-        tier_1_picks, tier_2_picks = get_mavericks_picks(maverick_filtered_df)
+        tier_1_picks, tier_2_picks,tier_3_picks = get_mavericks_picks(maverick_filtered_df)
 
         # Display Tier 1 Picks
-        st.markdown("### 🌟 Tier 1 Picks")
-        st.markdown("These are the counters identified by Maverick as having the highest potential for Gains.")
+        st.markdown("### 🌟 Bullish Volumes!")
+        st.markdown("These are the counters identified by Maverick to have interesting Volume Signatures.")
         if not tier_1_picks.empty:
             
-            columns_to_remove = ['vol_avg_5d', 'vol_avg_20d']
-            tier_1_picks = tier_1_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
+            columns_to_remove = ['vol_avg_5d','vol_avg_20d',
+                                 'ema_20', 'ema_50','ema_100', 'ema_200','Date','Rsi','Rsi Divergence',
+                                 'Relative Strength','Last Updated',
+                                 'prev_close'
+                                                            ]
+           # Reset the index to remove the index column
+            tier_1_picks = tier_1_picks.reset_index(drop=True)
             
             # Format numeric values with commas
-            for col in ['Turnover', 'Volume']:
+            for col in ['turnover', 'volume']:
                 if col in tier_1_picks.columns:
                     tier_1_picks[col] = tier_1_picks[col].apply(lambda x: f"{x:,.2f}" if pd.notnull(x) else x)
     
             # Sort by Date
-            tier_1_picks = tier_1_picks.sort_values(by='date', ascending=False)  
+            tier_1_picks = tier_1_picks.sort_values(by='date', ascending=False)
             
-            st.markdown("These are the counters identified by Maverick as having the highest potential for Gains.")
-            st.dataframe(tier_1_picks, use_container_width=True)
+            tier_1_picks = tier_1_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
             
+            column_rename_map = {
+                'change_pct': '% Change',
+                'closing_price': "Today Close",
+                }
+            
+            
+            tier_1_picks_show = tier_1_picks.copy()
+            
+            tier_1_picks_show = tier_1_picks_show.rename(columns=column_rename_map)
+            
+            tier_1_picks_show.columns = [col.replace('_', ' ').title() for col in tier_1_picks_show.columns]
+            
+            # Format the Date column to remove the time component
+            if 'Date' in tier_1_picks_show.columns:
+                tier_1_picks_show['Date'] = pd.to_datetime(tier_1_picks_show['Date']).dt.date
+            
+            
+            st.dataframe(tier_1_picks_show, use_container_width=True)
         else:
-            st.info("No stocks meet Tier 1 conditions.")
+            st.info("")
+            
+        if not tier_1_picks.empty:
+            
+         # Find the most recurring stocks and their counts
+            recurring_stocks_1 = tier_1_picks['symbol'].value_counts()
+            recurring_stocks_1 = recurring_stocks_1[recurring_stocks_1 >= 2]  # Filter stocks with count >= 2
+
+            if not recurring_stocks_1.empty:
+                st.markdown("List of Stocks with Repeated Bullish Volume Signatures:")
+                for stock, count in recurring_stocks_1.items():
+                    st.markdown(f"- **{stock}**: {count} times")
+            else:
+                st.info("")
+                
         # Display Tier 2 Picks
-        st.markdown("### 🔹Tier  2 Picks")
-        if not tier_2_picks.empty:
+        
+        st.markdown("### Top Performers!")
+        st.markdown("These are rather liquid Stocks that has registered a Bullish Volume as well as price action stronger than the RSI.")
+        
+        if not tier_3_picks.empty:
             
             columns_to_remove = ['vol_avg_5d','vol_avg_20d',
-                                 'ema_20', 'ema_50','ema_100', 'ema_200','Date'
+                                 'ema_20', 'ema_50','ema_100', 'ema_200','Date',
+                                 'Last Updated', 'Rsi','Rsi Divergence',
+                                 'prev_close'
                                                             ]
             
             
             # Reset the index to remove the index column
-            tier_2_picks = tier_2_picks.reset_index(drop=True)
+            tier_3_picks = tier_3_picks.reset_index(drop=True)
             
             # Format numeric values with commas
             for col in ['turnover', 'volume']:
-                if col in tier_2_picks.columns:
-                    tier_2_picks[col] = tier_2_picks[col].apply(lambda x: f"{x:,.2f}" if pd.notnull(x) else x)
+                if col in tier_3_picks.columns:
+                    tier_3_picks[col] = tier_3_picks[col].apply(lambda x: f"{x:,.2f}" if pd.notnull(x) else x)
     
             # Sort by Date
-            tier_2_picks = tier_2_picks.sort_values(by='date', ascending=False)
+            tier_3_picks = tier_3_picks.sort_values(by='date', ascending=False)
             
-            tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
+            tier_3_picks = tier_3_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
             
             column_rename_map = {
                 'change_pct': '% Change',
-                'closing_price': "Today Closing Price",
-                'prev_close': "Previous Day Closing Price"
+                'closing_price': "Today Close",
                 }
             
             
-            tier_2_picks_show = tier_2_picks.copy()
+            tier_3_picks_show = tier_3_picks.copy()
             
-            tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
+            tier_3_picks_show = tier_3_picks_show.rename(columns=column_rename_map)
             
-            tier_2_picks_show.columns = [col.replace('_', ' ').title() for col in tier_2_picks_show.columns]
+            tier_3_picks_show.columns = [col.replace('_', ' ').title() for col in tier_3_picks_show.columns]
             
             # Format the Date column to remove the time component
-            if 'Date' in tier_2_picks_show.columns:
-                tier_2_picks_show['Date'] = pd.to_datetime(tier_2_picks_show['Date']).dt.date
+            if 'Date' in tier_3_picks_show.columns:
+                tier_3_picks_show['Date'] = pd.to_datetime(tier_3_picks_show['Date']).dt.date
             
-            st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
-            st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
             
-            st.dataframe(tier_2_picks_show, use_container_width=True)
+            st.dataframe(tier_3_picks_show, use_container_width=True)
         else:
-            st.info("No stocks meet Tier 2 conditions.")
+            st.info("")
             
-        if not tier_2_picks.empty:
-         # Find the most recurring stocks and their counts
-            recurring_stocks = tier_2_picks['symbol'].value_counts()
-            recurring_stocks = recurring_stocks[recurring_stocks >= 2]  # Filter stocks with count >= 2
-
-            if not recurring_stocks.empty:
-                st.markdown("Most Recurring Stocks in Tier 2 Picks:")
-                for stock, count in recurring_stocks.items():
-                    st.markdown(f"- **{stock}**: {count} times")
-            else:
-                st.info("No recurring stocks found with a count of 2 or more.")
-            
-        
 
     # === Filters Section ===
     st.markdown("### 🔍 DIY & Take Control of Your Analysis")
