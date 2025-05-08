@@ -112,109 +112,6 @@ from streamlit.components.v1 import html
 # Initialize TradingView datafeed
 tv = TvDatafeed()
 
-def calculate_performance(tier_2_picks):
-    """Calculate Maverick's Picks performance based on capital gain."""
-    performance_data = []
-
-    for symbol in tier_2_picks['symbol'].unique():
-        try:
-            # Fetch historical data for the stock symbol
-            cse_data = tv.get_hist(symbol=symbol, exchange='CSELK', interval=Interval.in_daily, n_bars=200)
-
-            if cse_data is not None and not cse_data.empty:
-                # Get the initial close price (from the earliest date in the filtered data)
-                oldest_date = tier_2_picks[tier_2_picks['symbol'] == symbol]['date'].min()
-                initial_close = tier_2_picks[
-                    (tier_2_picks['symbol'] == symbol) & (tier_2_picks['date'] == oldest_date)
-                ]['closing_price'].iloc[0]
-
-                # Get the latest close price from TradingView data
-                latest_close = cse_data['close'].iloc[-1]
-
-                # Convert to float if necessary
-                initial_close = float(initial_close)
-                latest_close = float(latest_close)
-
-                # Calculate capital gain
-                capital_gain = ((latest_close - initial_close) / initial_close) * 100
-
-                # Append the result to the performance data
-                performance_data.append({
-                    'Date Detected': oldest_date.date(),
-                    'symbol': symbol,
-                    'Detected Day Close': initial_close,
-                    'Latest Close': latest_close,
-                    'Capital Gain Til Date(%)': capital_gain
-                })
-        except Exception as e:
-            st.warning(f"Could not fetch data for {symbol}: {e}")
-
-    # Convert performance data to a DataFrame
-    performance_df = pd.DataFrame(performance_data)
-    
-    # Sort the DataFrame by Capital Gain in descending order
-    performance_df = performance_df.sort_values(by='Capital Gain Til Date(%)', ascending=False)
-    
-    # Calculate the number of counters and overall PNL
-    num_counters = len(performance_df)
-    
-    overall_pnl_percent_sum = performance_df['Capital Gain Til Date(%)'].sum()
-    overall_pnl_if_100_each = overall_pnl_percent_sum # 
-    
-    # Calculate Hit Rate (Positive Gain / Total Counters)
-    positive_gains_count = (performance_df['Capital Gain Til Date(%)'] > 0).sum()
-    hit_rate = (positive_gains_count / num_counters * 100) if num_counters > 0 else 0
-
-    # Calculate Performance Buckets
-    gains = performance_df['Capital Gain Til Date(%)']
-
-    count_below_minus_10 = (gains < -10).sum()
-    count_minus_10_to_minus_5 = ((gains >= -10) & (gains < -5)).sum()
-    count_minus_5_to_plus_5 = ((gains >= -5) & (gains < 5)).sum()
-    count_plus_5_to_plus_10 = ((gains >= 5) & (gains < 10)).sum()
-    count_above_plus_10 = (gains >= 10).sum()
-
-    # Calculate the percentage of stocks in different capital gain ranges
-    below_neg_10 = len(performance_df[performance_df['Capital Gain Til Date(%)'] < -10]) / num_counters * 100 if num_counters > 0 else 0
-    minus_5_to_0 = len(performance_df[(performance_df['Capital Gain Til Date(%)'] >= -5) & (performance_df['Capital Gain Til Date(%)'] < 0)]) / num_counters * 100 if num_counters > 0 else 0
-    zero_to_5 = len(performance_df[(performance_df['Capital Gain Til Date(%)'] >= 0) & (performance_df['Capital Gain Til Date(%)'] < 5)]) / num_counters * 100 if num_counters > 0 else 0
-    above_10 = len(performance_df[performance_df['Capital Gain Til Date(%)'] >= 10]) / num_counters * 100 if num_counters > 0 else 0
-    above_5 = len(performance_df[performance_df['Capital Gain Til Date(%)'] >= 5]) / num_counters * 100 if num_counters > 0 else 0
-
-    
-    # Highlight positive and negative gains
-    def highlight_gain(val):
-        color = 'green' if val > 0 else 'red'
-        return f'color: {color}'
-
-    # Display the performance table
-    if not performance_df.empty:
-        st.markdown("### 📊 Maverick's Picks Performance")
-        st.dataframe(
-            performance_df.style.format({
-                'Detected Day Close': '{:,.2f}',
-                'Latest Close': '{:,.2f}',
-                'Capital Gain Til Date(%)': '{:,.2f}'
-            }).applymap(highlight_gain, subset=['Capital Gain Til Date(%)']),
-            use_container_width=True
-        )
-    else:
-        st.info("No performance data available.")
-        
-    # Display Summary Statistics
-    st.markdown("### 📊 Summary Statistics")
-    st.markdown(f"**Detected Counters in the selected time period:** {num_counters}")
-    st.markdown(f"<span style='font-size:18px; color:green;'>**Hit Rate (Positive Gains):** {hit_rate:.2f}%</span>", unsafe_allow_html=True)
-    st.markdown(f"**Total Capital Gain % Sum (Sum of individual stock % gains):** {overall_pnl_percent_sum:.2f}%")
-    st.markdown(f"*(Interpretation: If you invested 1% of your portfolio in each counter, the total portfolio gain would be ~{overall_pnl_percent_sum:.2f}%)*")
-    st.markdown(f"*(Note: This is not a portfolio return calculation, just a sum of individual percentage gains)*")
-
-    st.markdown("")
-    st.markdown(f"**% of Stocks Below -10%:** {below_neg_10:.2f}%")
-    st.markdown(f"**% of Stocks Between -5% and 0%:** {minus_5_to_0:.2f}%")
-    st.markdown(f"**% of Stocks Between 0% and 5%:**<span style='font-size:18px; color:green;'> {zero_to_5:.2f}%,</span>", unsafe_allow_html=True)
-    st.markdown(f"**% of Stocks Above 5%:** <span style='font-size:18px; color:green;'> {above_5:.2f}%, </span>", unsafe_allow_html=True)
-    st.markdown(f"**% of Stocks Above 10%:**<span style='font-size:18px; color:green;'> {above_10:.2f}% </span>", unsafe_allow_html=True)
 
 
 def get_mavericks_picks(results_df):
@@ -253,8 +150,7 @@ def get_mavericks_picks(results_df):
 
 # --- Streamlit App ---
 st.title("📈 CSE Gem Finder by CSE Maverick")
-st.markdown("💡An intelligent assistant to help you discover high-potential stocks")
-st.markdown("Discover Maverick's Picks generated by his Magic algorithm, or identify opportunities yourself by leveraging these technical analysis tools!!")
+st.markdown("💡An intelligent assistant to help you discover high-potential stocks by leveraging technical analysis tools!!")
 st.markdown("Let's find Gems!")
 st.markdown("")
 st.markdown("Note: This app is for Research purposes only. Please do your own research before making any investment decisions.")
@@ -404,9 +300,6 @@ try:
                 st.info("No recurring stocks found with a count of 2 or more.")
             
         
-        if not tier_2_picks.empty:
-            # Call the performance calculation function
-            calculate_performance(tier_2_picks)
 
     # === Filters Section ===
     st.markdown("### 🔍 DIY & Take Control of Your Analysis")
