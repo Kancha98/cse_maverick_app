@@ -280,8 +280,8 @@ try:
                 
         # Display Tier 2 Picks
         
-        st.markdown("### Top Performers!")
-        st.markdown("These are rather liquid Stocks that has registered a Bullish Volume as well as price action stronger than the RSI.")
+        st.markdown("### Imminent Reversal!")
+        st.markdown("Stocks that are showing a potential reversal in price action due to divergence with RSI.")
         
         if not tier_2_picks.empty:
             
