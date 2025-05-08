@@ -284,10 +284,6 @@ try:
         st.markdown("### Imminent Reversal!")
         st.markdown("Stocks that are showing a potential reversal in price action due to divergence with RSI.")
         
-        if tier_2_picks.columns.duplicated().any():
-            st.warning(f"Duplicate column names found: {tier_2_picks.columns[tier_2_picks.columns.duplicated()].tolist()}")
-            tier_2_picks = tier_2_picks.loc[:, ~tier_2_picks.columns.duplicated()]  # Remove duplicate columns
-        
         if not tier_2_picks.empty:
             
             columns_to_remove = ['vol_avg_5d','vol_avg_20d',
