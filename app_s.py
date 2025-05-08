@@ -136,9 +136,7 @@ def get_mavericks_picks(results_df):
 
     )
 
-    tier_1_picks = results_df[tier_1_conditions]
-    tier_2_picks = results_df[tier_2_conditions]
-    
+
     tier_3_conditions = (
         (results_df['volume_analysis'].isin(["Emerging Bullish Momentum", "High Bullish Momentum"]))&
         (results_df['turnover'] > 999999) &
@@ -147,9 +145,12 @@ def get_mavericks_picks(results_df):
 
     )
     
+    tier_1_picks = results_df[tier_1_conditions]
+    tier_2_picks = results_df[tier_2_conditions]
+    
     tier_3_picks = results_df[tier_3_conditions]
     
-    return tier_1_picks, tier_2_picks,tier_3_picks
+    return tier_1_picks, tier_2_picks, tier_3_picks
 
 # --- Streamlit App ---
 st.title("📈 CSE Gem Finder by CSE Maverick")
@@ -282,6 +283,10 @@ try:
         
         st.markdown("### Imminent Reversal!")
         st.markdown("Stocks that are showing a potential reversal in price action due to divergence with RSI.")
+        
+        if tier_2_picks.columns.duplicated().any():
+            st.warning(f"Duplicate column names found: {tier_2_picks.columns[tier_2_picks.columns.duplicated()].tolist()}")
+            tier_2_picks = tier_2_picks.loc[:, ~tier_2_picks.columns.duplicated()]  # Remove duplicate columns
         
         if not tier_2_picks.empty:
             
