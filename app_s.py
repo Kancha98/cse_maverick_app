@@ -225,8 +225,8 @@ try:
         if not tier_1_picks.empty:
             
             columns_to_remove = ['vol_avg_5d','vol_avg_20d',
-                                 'ema_20', 'ema_50','ema_100', 'ema_200','Date','Rsi','Rsi Divergence',
-                                 'Relative Strength','Last Updated',
+                                 'ema_20', 'ema_50','ema_100', 'ema_200','Date','rsi','rsi_divergence',
+                                 'relative_strength','last_updated',
                                  'prev_close'
                                                             ]
            # Reset the index to remove the index column
