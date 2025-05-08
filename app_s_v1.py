@@ -73,6 +73,7 @@ def load_data():
         # conn.close() # <--- REMOVE THIS LINE! (You already did this, good!)
 
         df = pd.DataFrame(rows, columns=colnames)
+        
         if 'date' in df.columns:
             df['date'] = pd.to_datetime(df['date'])
 
@@ -271,6 +272,11 @@ try:
     if df.empty:
         st.warning("No data found in the table.")
         st.stop()
+        
+    # Check for duplicate columns and remove them
+    if df.columns.duplicated().any():
+        st.warning(f"Duplicate column names found: {df.columns[df.columns.duplicated()].tolist()}")
+        df = df.loc[:, ~df.columns.duplicated()]  # Remove duplicate columns
 
     # Remove unwanted columns
     df = df.drop(columns=[col for col in ['id'] if col in df.columns])
@@ -286,129 +292,31 @@ try:
     # === Display Filtered Table ===
     #st.subheader("📄 Filtered Analysis Results")
     #st.dataframe(df, use_container_width=True)
-
-    # === Filters Section ===
-    st.markdown("### 🔍 Apply Filters")
-
-    # Dropdown filters
-    selected_symbol = st.selectbox("Select Symbol", options=["All"] + list(df['symbol'].unique()))
-    selected_divergence = st.selectbox("Select Divergence Check", options=["All"] + list(df['rsi_divergence'].dropna().unique()))
-    selected_volume_analysis = st.selectbox("Select Volume Analysis", options=["All"] + list(df['volume_analysis'].dropna().unique()))
     
-    # Turnover ranges
-    turnover_ranges = {
-        "100K-1M": (100000, 1000000),
-        "1M-10M": (1000000, 10000000),
-        "10M-100M": (10000000, 100000000),
-        "100M+": (100000000, float('inf'))
-    }
-    selected_turnover_ranges = st.multiselect(
-        "Select Turnover Ranges",
-        options=list(turnover_ranges.keys()),
-        default=["100K-1M", "1M-10M"]
-    )
-
-    # Range sliders
-    rsi_range = st.slider("RSI Range", float(df['rsi'].min()), float(df['rsi'].max()), (30.0, 70.0))
-    date_range = st.slider(
-        "Date Range",
-        min_value=df['last_updated'].min().date(),
-        max_value=df['last_updated'].max().date(),
-        value=(df['last_updated'].min().date(), df['last_updated'].max().date())
-    )
-    
-    # EMA Checker
-    st.markdown("### EMA Checker")
-    ema_20_check = st.checkbox("Price Above EMA 20")
-    ema_50_check = st.checkbox("Price Above EMA 50")
-    ema_100_check = st.checkbox("Price Above EMA 100")
-    ema_200_check = st.checkbox("Price Above EMA 200")
-    
-    
-    st.markdown("## Filtered Results")
-    
-    # Apply filters
-    filtered_df = df.copy()
-    if selected_symbol != "All":
-        filtered_df = filtered_df[filtered_df['symbol'] == selected_symbol]
-    if selected_divergence != "All":
-        filtered_df = filtered_df[filtered_df['rsi_divergence'] == selected_divergence]
-    if selected_volume_analysis != "All":
-        filtered_df = filtered_df[filtered_df['volume_analysis'] == selected_volume_analysis]
-    filtered_df = filtered_df[
-        (filtered_df['rsi'].between(rsi_range[0], rsi_range[1])) &
-        (filtered_df['date'].between(pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])))
-    ]
-    
-    # Apply turnover range filters
-    if selected_turnover_ranges:
-        turnover_conditions = []
-        for range_key in selected_turnover_ranges:
-            min_turnover, max_turnover = turnover_ranges[range_key]
-            turnover_conditions.append(
-                (filtered_df['turnover'] >= min_turnover) & (filtered_df['turnover'] < max_turnover)
-            )
-        filtered_df = filtered_df[pd.concat(turnover_conditions, axis=1).any(axis=1)]
-
-    # Apply EMA filters
-    if ema_20_check and 'ema_20' in df.columns:
-        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_20']]
-    if ema_50_check and 'ema_50' in df.columns:
-        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_50']]
-    if ema_100_check and 'ema_100' in df.columns:
-        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_100']]
-    if ema_200_check and 'ema_200' in df.columns:
-        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_200']]
-
-    
-    # Rename headers
-    filtered_df.columns = [col.replace('_', ' ').title() for col in filtered_df.columns]
-
-    numeric_columns = [
-    'Closing Price', 'Prev Close', 'Turnover'
-    ]
-    
-    for col in numeric_columns:
-        if col in filtered_df.columns:
-            filtered_df[col] = pd.to_numeric(filtered_df[col], errors='coerce')
-    
-     # Sort the table by Turnover in descending order
-    if 'Turnover' in filtered_df.columns:
-        filtered_df = filtered_df.sort_values(by='Turnover', ascending=False)
-        
-    # Format numeric values with commas
-    for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
-        filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
-
-    filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 'Ema 100', 'Ema 200', 'Last Updated'] if col in filtered_df.columns])
-        
-    # Display the filtered table
-    st.dataframe(filtered_df, use_container_width=True)
-    
-    if not filtered_df.empty:
+    if not df.empty:
         st.markdown("## 💎 Maverick's Potential Gems")
         
         # Add a date picker for filtering Maverick's Picks
         selected_maverick_date = st.date_input(
         "Select Start Date for Maverick's Picks",
-        value=filtered_df['Date'].min().date(),  # Default to the earliest date in the filtered data
-        min_value=filtered_df['Date'].min().date(),
-        max_value=filtered_df['Date'].max().date()
+        value=df['date'].min().date(),  # Default to the earliest date in the filtered data
+        min_value=df['date'].min().date(),
+        max_value=df['date'].max().date()
         )
         
         # Ensure numeric columns are properly typed
         numeric_columns = [
-        'Turnover', 'Volume', 'Relative Strength', 'Closing Price', 'Prev Close'
+        'turnover', 'volume', 'relative_strength', 'closing_price', 'prev_close'
         ]
         for col in numeric_columns:
-            if col in filtered_df.columns:
-                filtered_df[col] = pd.to_numeric(filtered_df[col], errors='coerce')
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
 
         
         # Filter data based on the selected date
         df['Date'] = pd.to_datetime(df['date'], errors='coerce')  # Ensure Date column is datetime
         maverick_filtered_df = df[df['date'] >= pd.to_datetime(selected_maverick_date)]
-        columns_to_remove = ['Vol Avg 5D', 'Vol Avg 20D','Last Updated']
+        columns_to_remove = ['vol_avg_5d', 'vol_avg_20d','last_updated']
         maverick_filtered_df = maverick_filtered_df.drop(columns=[col for col in columns_to_remove if col in maverick_filtered_df.columns])       
         # Debugging: Display the filtered DataFrame
         #st.write("Filtered Maverick DataFrame:", maverick_filtered_df)
@@ -441,8 +349,13 @@ try:
         st.markdown("### 🔹Tier  2 Picks")
         if not tier_2_picks.empty:
             
-            columns_to_remove = ['vol_avg_5d', 'vol_avg_20d']
-            tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
+            columns_to_remove = ['vol_avg_5d','vol_avg_20d',
+                                 'ema_20', 'ema_50','ema_100', 'ema_200','Date'
+                                                            ]
+            
+            
+            # Reset the index to remove the index column
+            tier_2_picks = tier_2_picks.reset_index(drop=True)
             
             # Format numeric values with commas
             for col in ['turnover', 'volume']:
@@ -452,10 +365,29 @@ try:
             # Sort by Date
             tier_2_picks = tier_2_picks.sort_values(by='date', ascending=False)
             
+            tier_2_picks = tier_2_picks.drop(columns=[col for col in columns_to_remove if col in tier_1_picks.columns])
+            
+            column_rename_map = {
+                'change_pct': '% Change',
+                'closing_price': "Today Closing Price",
+                'prev_close': "Previous Day Closing Price"
+                }
+            
+            
+            tier_2_picks_show = tier_2_picks.copy()
+            
+            tier_2_picks_show = tier_2_picks_show.rename(columns=column_rename_map)
+            
+            tier_2_picks_show.columns = [col.replace('_', ' ').title() for col in tier_2_picks_show.columns]
+            
+            # Format the Date column to remove the time component
+            if 'Date' in tier_2_picks_show.columns:
+                tier_2_picks_show['Date'] = pd.to_datetime(tier_2_picks_show['Date']).dt.date
             
             st.markdown("These stocks show moderate upside potential compared to the broader market. While not as strong as Tier 1 picks, they still present relatively favorable opportunities._")
             st.markdown("Pay attention to the stocks that have recurring mentions in the list, they have much better chances!")
-            st.dataframe(tier_2_picks, use_container_width=True)
+            
+            st.dataframe(tier_2_picks_show, use_container_width=True)
         else:
             st.info("No stocks meet Tier 2 conditions.")
             
@@ -475,6 +407,157 @@ try:
         if not tier_2_picks.empty:
             # Call the performance calculation function
             calculate_performance(tier_2_picks)
+
+    # === Filters Section ===
+    st.markdown("### 🔍 DIY & Take Control of Your Analysis")
+    st.markdown("Use the filters below to invoke your selection criteria.")
+    st.markdown("You can filter stocks based on RSI, Divergence, Volume Analysis, and more.")
+    st.markdown("")
+    # Dropdown filters
+    selected_symbol = st.selectbox("Select Symbol", options=["All"] + list(df['symbol'].unique()))
+    selected_divergence = st.selectbox("Select Divergence Check", options=["All"] + list(df['rsi_divergence'].dropna().unique()))
+    selected_volume_analysis = st.selectbox("Select Volume Analysis", options=["All"] + list(df['volume_analysis'].dropna().unique()))
+    
+    # Turnover ranges
+    turnover_ranges = {
+        "100K-1M": (100000, 1000000),
+        "1M-10M": (1000000, 10000000),
+        "10M-100M": (10000000, 100000000),
+        "100M+": (100000000, float('inf'))
+    }
+    selected_turnover_ranges = st.multiselect(
+        "Select Turnover Ranges",
+        options=list(turnover_ranges.keys()),
+        default=["10M-100M", "100M+"]
+    )
+
+    # Range sliders
+    rsi_range = st.slider("RSI Range", float(df['rsi'].min()), float(df['rsi'].max()), (30.0, 70.0))
+    date_range = st.slider(
+        "Date Range",
+        min_value=df['last_updated'].min().date(),
+        max_value=df['last_updated'].max().date(),
+        value=(df['last_updated'].min().date(), df['last_updated'].max().date())
+    )
+    
+    # EMA Checker
+    st.markdown("### EMA Checker")
+    ema_20_check = st.checkbox("Price Above EMA 20")
+    ema_50_check = st.checkbox("Price Above EMA 50")
+    ema_100_check = st.checkbox("Price Above EMA 100")
+    ema_200_check = st.checkbox("Price Above EMA 200")
+    
+    
+    st.markdown("## Filtered Results")
+    
+    # Check for duplicate columns and remove them
+    if df.columns.duplicated().any():
+        st.warning(f"Duplicate column names found: {df.columns[df.columns.duplicated()].tolist()}")
+        df = df.loc[:, ~df.columns.duplicated()]  # Remove duplicate columns
+    
+    # Apply filters
+    filtered_df = df.copy()
+    
+    #Apply symbol filter
+    if selected_symbol != "All" and 'symbol' in filtered_df.columns:
+        filtered_df = filtered_df[filtered_df['symbol'] == selected_symbol]
+
+    # Apply divergence filter
+    if selected_divergence != "All" and 'rsi_divergence' in filtered_df.columns:
+        filtered_df = filtered_df[filtered_df['rsi_divergence'] == selected_divergence]
+
+    # Apply volume analysis filter
+    if selected_volume_analysis != "All" and 'volume_analysis' in filtered_df.columns:
+        filtered_df = filtered_df[filtered_df['volume_analysis'] == selected_volume_analysis]
+
+    # Apply RSI and date range filters
+    if 'rsi' in filtered_df.columns and 'date' in filtered_df.columns:
+        filtered_df = filtered_df[
+            (filtered_df['rsi'].between(rsi_range[0], rsi_range[1])) &
+            (filtered_df['date'].between(pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])))
+    ]
+
+    # Handle empty DataFrame
+    if filtered_df.empty:
+        st.info("No results match the selected filters.")
+    #else:
+        #st.dataframe(filtered_df, use_container_width=True)
+    
+    
+    # Apply turnover range filters
+    if selected_turnover_ranges:
+        turnover_conditions = []
+        for range_key in selected_turnover_ranges:
+            min_turnover, max_turnover = turnover_ranges[range_key]
+            turnover_conditions.append(
+                (filtered_df['turnover'] >= min_turnover) & (filtered_df['turnover'] < max_turnover)
+            )
+        filtered_df = filtered_df[pd.concat(turnover_conditions, axis=1).any(axis=1)]
+
+    # Apply EMA filters
+    if ema_20_check and 'ema_20' in df.columns:
+        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_20']]
+    if ema_50_check and 'ema_50' in df.columns:
+        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_50']]
+    if ema_100_check and 'ema_100' in df.columns:
+        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_100']]
+    if ema_200_check and 'ema_200' in df.columns:
+        filtered_df = filtered_df[filtered_df['closing_price'] > filtered_df['ema_200']]
+
+    
+    # Rename headers
+    
+
+    #numeric_columns = [
+    #'Closing Price', 'Prev Close', 'Turnover'
+    #]
+    
+    for col in numeric_columns:
+        if col in filtered_df.columns:
+            filtered_df[col] = pd.to_numeric(filtered_df[col], errors='coerce')
+    
+     # Sort the table by Turnover in descending order
+    if 'turnover' in filtered_df.columns:
+        filtered_df = filtered_df.sort_values(by='turnover', ascending=False)
+        
+    # Format numeric values with commas
+    for col in filtered_df.select_dtypes(include=['float64', 'int64']).columns:
+        filtered_df[col] = filtered_df[col].apply(lambda x: f"{x:,.2f}" if isinstance(x, float) else f"{x:,}")
+
+    filtered_df = filtered_df.drop(columns=[col for col in ['Vol Avg 5D','Vol Avg 20D', 'Ema 20', 'Ema 50', 
+                                                            'Ema 100', 'Ema 200', 'Last Updated','Date', 'Symbol', 
+                                                            'Closing Price', 'Prev Close', 'Change Pct', 'Turnover', 
+                                                            'Volume', 'Volume Analysis', 'Rsi', 'Rsi Divergence', 
+                                                            'Relative Strength','vol_avg_5d','vol_avg_20d',
+                                                            'ema_20', 'ema_50', 
+                                                            'ema_100', 'ema_200', 'Last Updated'
+                                                            ] if col in filtered_df.columns])    
+    
+    filtered_df_show = filtered_df.copy()
+        
+    # Sort by Date
+    filtered_df_show = filtered_df_show.sort_values(by='date', ascending=False)
+            
+    
+            
+    column_rename_map = {
+                'change_pct': '% Change',
+                'closing_price': "Today Closing Price",
+                'prev_close': "Previous Day Closing Price"
+                }
+            
+    filtered_df_show = filtered_df_show.rename(columns=column_rename_map)
+            
+    filtered_df_show.columns = [col.replace('_', ' ').title() for col in filtered_df_show.columns]
+            
+    filtered_df_show = filtered_df_show.reset_index(drop=True)
+    
+    # Format the Date column to remove the time component
+    if 'Date' in filtered_df_show.columns:
+            filtered_df_show['Date'] = pd.to_datetime(filtered_df_show['Date']).dt.date
+    
+    # Display the filtered table
+    st.dataframe(filtered_df_show, use_container_width=True)
     
     
  # === Legend Section ===
