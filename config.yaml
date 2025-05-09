@@ -1,0 +1,7 @@
+oauth:
+  client_id: "400392646425-gu1i9mk705ump3gb6d6cieh389ijiujv.apps.googleusercontent.com"
+  scope: "openid email profile"
+  auth_endpoint: "https://accounts.google.com/o/oauth2/v2/auth"
+  token_endpoint: "https://oauth2.googleapis.com/token"
+  user_info_endpoint: "https://openidconnect.googleapis.com/v1/userinfo"
+  redirect_uri: "http://localhost:8501"
