@@ -205,7 +205,7 @@ try:
         min_date_value = df['date'].min().date() if pd.notna(df['date'].min()) else datetime.date.today() - datetime.timedelta(days=365*5) # Default to 5 years ago
         max_date_value = df['date'].max().date() if pd.notna(df['date'].max()) else datetime.date.today()
         # Set a default value that is within the valid range
-        default_date_value = max(min_date_value, datetime.date.today() - datetime.timedelta(days=30)) # Default to last 30 days or min date
+        default_date_value = max(min_date_value, datetime.date.today() - datetime.timedelta(days=5)) # Default to last 30 days or min date
 
         selected_maverick_date = st.date_input(
             "Select Start Date for Filtering Stocks",
