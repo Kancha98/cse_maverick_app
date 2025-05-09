@@ -275,6 +275,8 @@ try:
             if 'Date' in tier_1_picks_show.columns:
                  tier_1_picks_show['Date'] = pd.to_datetime(tier_1_picks_show['Date']).dt.date
 
+            if not tier_1_picks_show.empty:
+                tier_1_picks_show = tier_1_picks_show.reset_index(drop=True)  # Remove index
 
             st.dataframe(tier_1_picks_show, use_container_width=True)
         else:
@@ -294,7 +296,7 @@ try:
 
 
         # --- Display Tier 2 Picks ---
-        st.markdown("### Imminent Reversal!")
+        st.markdown("### 🔄 Potential Reversal Ahead!")
         st.markdown("Stocks that are showing a potential reversal in price action due to divergence with RSI.")
 
         if not tier_2_picks_full.empty:
@@ -342,8 +344,8 @@ try:
             st.info("No stocks found with RSI Divergence in the selected period.")
 
         # --- Display Tier 3 Picks ---
-        st.markdown("### Top Performers!")
-        st.markdown("These are rather liquid Stocks that has registered a Bullish Volume as well as price action stronger than the RSI.")
+        st.markdown("### 🏆 Top Performers!")
+        st.markdown("These are rather liquid Stocks that has registered a Bullish Volume as well as price action stronger than the ASI.")
 
         if not tier_3_picks_full.empty:
             # Define columns to keep for Tier 3 display
